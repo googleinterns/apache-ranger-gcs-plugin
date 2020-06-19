@@ -1,0 +1,17 @@
+# IDE files
+.idea/
+.mvn/
+*.iml
+*.ipr
+*.iws
+
+# artifacts
+target/
+*.class
+*.jar
+
+# log files
+*.log
+
+# swp
+*.swp
