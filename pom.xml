@@ -23,7 +23,7 @@
 
     <properties>
         <revision>1.0-SNAPSHOT</revision>
-        <cptargetdir>${project.build.directory}</cptargetdir>
+        <rangerversion>1.2.0</rangerversion>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
