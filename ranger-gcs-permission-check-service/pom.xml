@@ -38,13 +38,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.ranger</groupId>
-            <artifactId>ranger-plugins-common</artifactId>
-            <version>2.0.0</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
             <groupId>com.google.cloud.bigdataoss</groupId>
             <artifactId>ranger-gcs-plugin</artifactId>
             <version>${revision}</version>
