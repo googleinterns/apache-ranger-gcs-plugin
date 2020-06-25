@@ -1,0 +1,2 @@
+Main-Class: com.google.cloud.hadoop.ranger.gcs.permissionCheckService.PermissionCheckService
+Class-Path: /etc/gcs/conf

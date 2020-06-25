@@ -48,6 +48,12 @@
             <artifactId>ranger-gcs-utilities</artifactId>
             <version>${revision}</version>
         </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>apache-log4j-extras</artifactId>
+            <version>1.2.17</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -71,6 +77,25 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <!-- Configures the content of the created manifest -->
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.google.cloud.hadoop.ranger.gcs.permissionCheckService.PermissionCheckService</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>/etc/gcs/conf/</Class-Path>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+
             </plugin>
         </plugins>
     </build>
