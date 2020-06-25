@@ -15,7 +15,7 @@
 <configuration xmlns:xi="http://www.w3.org/2001/XInclude">
 	<property>
 		<name>ranger.plugin.gcs.service.name</name>
-		<value>gcs</value>
+		<value>ranger-service-name</value>
 		<description>
 			Name of the Ranger service containing policies for this gcs connector.
 		</description>
