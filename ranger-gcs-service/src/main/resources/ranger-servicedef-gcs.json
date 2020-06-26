@@ -1,0 +1,66 @@
+{
+  "name": "gcs",
+  "displayName": "GCS",
+  "implClass": "com.google.cloud.hadoop.ranger.gcs.services.RangerGcsService",
+  "label": "gcs",
+  "description": "Ranger plugin for GCS",
+  "guid": "ff06eb30-63eb-4aca-8582-92f5571bc36b",
+  "version": 1,
+  "isEnabled": 1,
+  "resources": [
+    {
+      "itemId": 1,
+      "name": "bucket",
+      "type": "string",
+      "level": 10,
+      "parent": "",
+      "mandatory": true,
+      "lookupSupported": false,
+      "recursiveSupported": false,
+      "excludesSupported": false,
+      "matcher":"org.apache.ranger.plugin.resourcematcher.RangerDefaultResourceMatcher",
+      "matcherOptions": { "wildCard":true, "ignoreCase":false},
+      "validationRegEx":"",
+      "validationMessage": "",
+      "uiHint": "",
+      "label": "Bucket name",
+      "description": "Bucket name"
+    }, {
+      "itemId": 2,
+      "name": "object-path",
+      "type": "path",
+      "level": 20,
+      "parent": "bucket",
+      "mandatory": true,
+      "lookupSupported": false,
+      "recursiveSupported": true,
+      "excludesSupported": false,
+      "matcher":"org.apache.ranger.plugin.resourcematcher.RangerPathResourceMatcher",
+      "matcherOptions": { "wildCard":true, "ignoreCase":false},
+      "validationRegEx":"",
+      "validationMessage": "",
+      "uiHint": "",
+      "label": "Object path",
+      "description": "Object path"
+    }
+  ],
+  "accessTypes": [
+    {
+      "itemId": 1,
+      "name": "read",
+      "label": "Read"
+    }, {
+      "itemId": 2,
+      "name": "write",
+      "label": "Write"
+    }
+  ],
+  "configs": [
+  ],
+  "enums": [
+  ],
+  "contextEnrichers": [
+  ],
+  "policyConditions": [
+  ]
+}
