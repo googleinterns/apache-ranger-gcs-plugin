@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
+
 # Store xtrace status. Need to restore this after set +x.
 ORIGINALXTRACE=$(shopt -po xtrace)
 
