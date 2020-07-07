@@ -24,6 +24,7 @@
     <properties>
         <revision>1.0-SNAPSHOT</revision>
         <rangerversion>1.2.0</rangerversion>
+        <gcsconnector.version>2.2.0-SNAPSHOT</gcsconnector.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <!-- The version that maven auto resolved is too old for Ranger:1.2.0. -->
@@ -43,5 +44,6 @@
         <module>ranger-gcs-plugin</module>
         <module>ranger-gcs-permission-check-service</module>
         <module>ranger-gcs-utilities</module>
-	</modules>
+        <module>ranger-gcs-connector-adapter</module>
+    </modules>
 </project>
