@@ -19,20 +19,12 @@ set -e
 # Store xtrace status. Need to restore this after set +x.
 ORIGINALXTRACE=$(shopt -po xtrace)
 
-###################################
-# Resolve project root directory. #
-###################################
-
 PROJECT_ROOT=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )")
+source $PROJECT_ROOT/scripts/project-settings.sh
 
-############################################
-# Resolve Ranger_HOME and  admin password. #
-############################################
-
-# check environment variable, if not present, guess one.
-if [[ -z $RANGER_HOME ]] ; then
-	RANGER_HOME="/usr/lib/ranger"
-fi
+##################################
+# Resolve Ranger admin password. #
+##################################
 
 # get password
 if [[ -f ${RANGER_HOME}/ranger-admin/install.properties ]] ; then
@@ -48,24 +40,21 @@ fi
 # Copy jar to ranger class path #
 #################################
 
-MODULE="ranger-gcs-service"
-TARGET_DIR="target"
 SERVICE_DEF_DIR="classes"
 SERVICE_DEF="ranger-servicedef-gcs.json"
 
-PLUGIN_NAME="gcs"
-JAR_DESTINATION="$RANGER_HOME/ranger-admin/ews/webapp/WEB-INF/classes/ranger-plugins/$PLUGIN_NAME"
+JAR_DESTINATION="$RANGER_HOME/ranger-admin/ews/webapp/WEB-INF/classes/ranger-plugins/gcs"
 
 echo "Start deploying Ranger service and service definition to Ranger Server."
 echo "Copy jar file to Ranger directory"
 
 # depoly jar
 mkdir -p $JAR_DESTINATION
-JAR_NAME=$(ls $MODULE/$TARGET_DIR | grep jar)
-cp $PROJECT_ROOT/$MODULE/$TARGET_DIR/$JAR_NAME $JAR_DESTINATION/
+JAR_NAME=$(ls $MODULE_SERVICE/$TARGET_DIR | grep jar)
+cp $PROJECT_ROOT/$MODULE_SERVICE/$TARGET_DIR/$JAR_NAME $JAR_DESTINATION/
 
 if [[ $? -ne 0 ]] ; then
-	echo "Something went wrong when copying $MODULE/$TARGET_DIR/$JAR_NAME to $JAR_DESTINATION."
+	echo "Something went wrong when copying $MODULE_SERVICE/$TARGET_DIR/$JAR_NAME to $JAR_DESTINATION."
 	exit 1
 fi
 
@@ -83,14 +72,41 @@ set +x
 ADMIN="admin:$ADMINPASSWD";
 eval $ORIGINALXTRACE
 
-DATA="@$PROJECT_ROOT/$MODULE/$TARGET_DIR/$SERVICE_DEF_DIR/$SERVICE_DEF"
-REQ_DESTINATION="http://localhost:6080/service/plugins/definitions"
+DATA="@$PROJECT_ROOT/$MODULE_SERVICE/$TARGET_DIR/$SERVICE_DEF_DIR/$SERVICE_DEF"
+REQ_DESTINATION="$RANGER_HOST:$RANGER_PORT/service/plugins/definitions"
 
 # upload service def
 echo "Making HTTP POST request to $REQ_DESTINATION. User=admin, data=$DATA."
 
 set +x
 curl -u $ADMIN -X POST -H "Accept: application/json" -H "Content-Type: application/json" --data $DATA $REQ_DESTINATION
+eval $ORIGINALXTRACE
+
+# curl don't change line at the end, and it may mess up prompt badly.
+echo -e ""
+
+#############################################
+# Create a default service on Ranger server #
+#############################################
+
+DATA=$(cat <<-EOD
+        {
+                "configs": {},
+                "description": "GCS service",
+                "isEnabled": true,
+                "name": "$DEFAULT_SERVICE_NAME",
+                "type": "GCS",
+                "version": 1
+        }
+EOD
+)
+
+SERVICE_API="$RANGER_HOST:$RANGER_PORT/service/public/v2/api/service"
+
+echo "Creating default GCS service. Name=gcs."
+
+set +x
+curl -u $ADMIN -X POST -H "Accept: application/json" -H "Content-Type: application/json"  --data "$DATA" $SERVICE_API
 eval $ORIGINALXTRACE
 
 # curl don't change line at the end, and it may mess up prompt badly.

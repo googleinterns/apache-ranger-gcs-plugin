@@ -26,6 +26,8 @@
         <rangerversion>1.2.0</rangerversion>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- The version that maven auto resolved is too old for Ranger:1.2.0. -->
+        <httpcore.version>4.4.6</httpcore.version>
     </properties>
 
     <licenses>

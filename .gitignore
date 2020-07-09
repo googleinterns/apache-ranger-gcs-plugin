@@ -8,6 +8,9 @@
 target/
 *.class
 
+# Maven files. This is auto-generated.
+dependency-reduced-pom.xml
+
 # log files
 *.log
 
