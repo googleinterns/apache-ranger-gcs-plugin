@@ -65,16 +65,12 @@ public class RequestTicketFactory {
                         Matcher matcher = pattern.matcher(entry[1]);
                         if (matcher.find()) {
                             bucket = matcher.group(1);
-                            objectPath = matcher.group(2);
-
-                            if (objectPath.length() == 0) {
-                                objectPath = "*";
-                            }
+                            objectPath = "/" + matcher.group(2);
                         }
                     // Value is "bucket", no object path.
                     } else {
                         bucket = entry[1];
-                        objectPath = "*";
+                        objectPath = "/";
                     }
 
                     ticket.setBucket(bucket);
