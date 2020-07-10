@@ -37,7 +37,6 @@ public class RangerGcsAuditHandler extends RangerDefaultAuditHandler {
     private static final Log LOG = LogFactory.getLog(RangerGcsAuditHandler.class);
 
     private static final String GCS_DOMAIN = "gs://";
-    private static final String PATH_SEPARATER = "/";
 
     private AuthzAuditEvent auditEvent = null;
     private final String gcsurl;
@@ -46,7 +45,6 @@ public class RangerGcsAuditHandler extends RangerDefaultAuditHandler {
     public RangerGcsAuditHandler(String bucket, String path, List<String> actions) {
         this.gcsurl = new StringBuilder(GCS_DOMAIN)
                 .append(bucket)
-                .append(PATH_SEPARATER)
                 .append(path)
                 .toString();
         this.action = String.join(", ", actions);
