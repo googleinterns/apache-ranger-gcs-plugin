@@ -48,11 +48,19 @@ If the variable is not set, the default installation location ```/usr/lib/ranger
 export RANGER_HOME=<your ranger installation directory>
 ```
 
-2. **RANGER_HOST** should be the url of Ranger admin server.
+2. **HADOOP_HOME** should point to the base directory of Hadoop's installation.
+
+You can set **HADOOP_HOME** environment variable with an export command.
+If the variable is not set, the default location ```/usr/lib/hadoop``` will be used.
+```
+export HADOOP_HOME=<hadoop installation directory>
+```
+
+3. **RANGER_HOST** should be the url of Ranger admin server.
 
 For example, it is ```http://<your-cluster-name>-m``` on Dataproc clusters.
 
-3. **RANGER_PORT** is the port of Ranger server.
+4. **RANGER_PORT** is the port of Ranger server.
 
 The default port is ```6080```.
 
@@ -147,6 +155,13 @@ A GCS policy requires two resource: bucket name and object path.
 2. Object path is an **absolute path** (always start with a "/") from the bucket's root.
 
 Becareful that any non-absolute path (not starting with a "/") may not be matched by the Ranger policy engine.
+
+## Deploy GCS Connector Adapter
+
+Use the following script to copy the adapter jar to hadoop lib directory.
+```
+sudo bash scripts/deploy-gcs-connector-adapter.sh
+```
 
 ## Resources
 
