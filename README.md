@@ -23,8 +23,7 @@ wip.
 wip.
 
 
-# Usage
-## Build the Project
+# Build the Project
 
 Use the maven or maven wrapper to build.
 ```
@@ -146,7 +145,15 @@ You can use the provided setting with "info" log level.
 sudo cp scripts/log4j.properties /etc/gcs/conf
 ```
 
-## Create Policy
+## Deploy GCS Connector Adapter
+
+Use the following script to copy the adapter jar to hadoop lib directory.
+```
+sudo bash scripts/deploy-gcs-connector-adapter.sh
+```
+# Usage
+
+## Create Policy on Ranger Admin
 
 A GCS policy requires two resource: bucket name and object path.
 
@@ -156,14 +163,7 @@ A GCS policy requires two resource: bucket name and object path.
 
 Becareful that any non-absolute path (not starting with a "/") may not be matched by the Ranger policy engine.
 
-## Deploy GCS Connector Adapter
-
-Use the following script to copy the adapter jar to hadoop lib directory.
-```
-sudo bash scripts/deploy-gcs-connector-adapter.sh
-```
-
-## Resources
+# Resources
 
 - [Dataproc Ranger Component](https://cloud.google.com/dataproc/docs/concepts/components/ranger)
 - [Google Cloud Dataproc - Hadoop Connectors](https://github.com/GoogleCloudDataproc/hadoop-connectors)
