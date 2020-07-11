@@ -14,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
-
 # Store xtrace status. Need to restore this after set +x.
 ORIGINALXTRACE=$(shopt -po xtrace)
+
+# Exit if error
+set -e
 
 PROJECT_ROOT=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )")
 source $PROJECT_ROOT/scripts/project-settings.sh
