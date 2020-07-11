@@ -138,6 +138,16 @@ You can use the provided setting with "info" log level.
 sudo cp scripts/log4j.properties /etc/gcs/conf
 ```
 
+## Create Policy
+
+A GCS policy requires two resource: bucket name and object path.
+
+1. Bucket name is the name of GCS bucket.
+
+2. Object path is an **absolute path** (always start with a "/") from the bucket's root.
+
+Becareful that any non-absolute path (not starting with a "/") may not be matched by the Ranger policy engine.
+
 ## Resources
 
 - [Dataproc Ranger Component](https://cloud.google.com/dataproc/docs/concepts/components/ranger)
