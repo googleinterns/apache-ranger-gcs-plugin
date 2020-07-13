@@ -30,6 +30,7 @@ import java.util.List;
  * An authorization provider that send authorization requests to Ranger proxy server.
  */
 public class RangerProxyServiceAdapter implements AuthorizationProvider {
+    // Timeout for http request to Ranger proxy server. 3 seconds should be more then enough.
     private static final int TIMEOUT = 3;
 
     private static final String DENY_MSG = "Access Denied. Unsupported/invalid request content.";
