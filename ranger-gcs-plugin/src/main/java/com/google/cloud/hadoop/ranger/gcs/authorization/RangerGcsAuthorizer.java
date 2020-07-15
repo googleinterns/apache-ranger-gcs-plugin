@@ -32,6 +32,8 @@ import java.util.Set;
 public class RangerGcsAuthorizer {
     private static final Log LOG = LogFactory.getLog(RangerGcsAuthorizer.class);
 
+    private static final String ACCESS_DENY_MSG = "Access denied by Ranger policy.";
+
     private RangerGcsPlugin plugin;
 
     public RangerGcsAuthorizer() {
@@ -85,6 +87,7 @@ public class RangerGcsAuthorizer {
 
         if (result == null || !result.getIsAccessDetermined() || !result.getIsAllowed()) {
             ret = RangerGcsPermissionCheckResult.Deny();
+            ret.setMessage(ACCESS_DENY_MSG);
         } else {
             ret = RangerGcsPermissionCheckResult.Allow();
         }
