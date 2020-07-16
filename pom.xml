@@ -25,6 +25,8 @@
         <revision>1.0-SNAPSHOT</revision>
         <rangerversion>1.2.0</rangerversion>
         <gcsconnector.version>2.2.0-SNAPSHOT</gcsconnector.version>
+        <google.truth.version>1.0.1</google.truth.version>
+        <junit.version>4.11</junit.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <!-- The version that maven auto resolved is too old for Ranger:1.2.0. -->
@@ -46,4 +48,25 @@
         <module>ranger-gcs-utilities</module>
         <module>ranger-gcs-connector-adapter</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.truth</groupId>
+            <artifactId>truth</artifactId>
+            <version>${google.truth.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.truth.extensions</groupId>
+            <artifactId>truth-java8-extension</artifactId>
+            <version>${google.truth.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
