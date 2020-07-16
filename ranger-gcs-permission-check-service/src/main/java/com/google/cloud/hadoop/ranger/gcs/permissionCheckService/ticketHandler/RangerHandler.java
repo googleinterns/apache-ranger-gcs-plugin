@@ -30,6 +30,10 @@ import org.apache.commons.logging.LogFactory;
 public class RangerHandler implements TicketHandler {
     private static final Log LOG = LogFactory.getLog(RangerHandler.class);
 
+    // Append request detail to Ranger's response message.
+    // Ranger's response message should be a complete sentence, so no period here.
+    private static final String ACCESS_DENY_MSG = "%s Request=%s.";
+
     @Override
     public void handle(RequestTicket ticket) {
         if (LOG.isDebugEnabled())
@@ -46,9 +50,22 @@ public class RangerHandler implements TicketHandler {
          RangerGcsPermissionCheckResult result = wrapper.isAccessAllowed(ticket.getUser(), ticket.getUserGroups(),
                  ticket.getBucket(), ticket.getObjectPath(), ticket.getActions());
 
+         // Enrich access deny message. Make it more useful for user and admin to understand.
+         if (result.equals(RangerGcsPermissionCheckResult.Deny())) {
+             result.setMessage(ticketToDenyMsg(result, ticket));
+         }
+
          ticket.setResult(result);
 
         if (LOG.isDebugEnabled())
             LOG.debug("<== RangerHandler.handle(" + ticket.toString() + "): " + result.toString());
+    }
+
+    private static String ticketToDenyMsg(RangerGcsPermissionCheckResult result, RequestTicket ticket) {
+        return String.format(ACCESS_DENY_MSG, result.getMessage(), new StringBuilder()
+                .append("[resource=").append(ticket.getBucket()).append(ticket.getObjectPath())
+                .append(", action=(").append(String.join(",", ticket.getActions()))
+                .append(")]")
+                .toString());
     }
 }
