@@ -40,6 +40,10 @@ public class RangerGcsAuthorizer {
         plugin = new RangerGcsPlugin();
     }
 
+    public RangerGcsAuthorizer(RangerGcsPlugin plugin) {
+        this.plugin = plugin;
+    }
+
     public void init() {
         if (LOG.isDebugEnabled())
             LOG.debug("==> RangerGcsAuthorizer.init()");

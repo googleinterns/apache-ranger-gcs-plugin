@@ -21,6 +21,7 @@ package com.google.cloud.hadoop.ranger.gcs.authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ranger.plugin.policyengine.RangerAccessResult;
+import org.apache.ranger.plugin.policyengine.RangerAccessResultProcessor;
 import org.apache.ranger.plugin.service.RangerBasePlugin;
 
 import java.util.List;
@@ -38,6 +39,10 @@ public class RangerGcsPlugin {
         plugin = new RangerBasePlugin("gcs", "gcs");
     }
 
+    public RangerGcsPlugin(RangerBasePlugin plugin) {
+        this.plugin = plugin;
+    }
+
     public void init() {
         plugin.init();
     }
@@ -47,13 +52,18 @@ public class RangerGcsPlugin {
     }
 
     public RangerAccessResult isAccessAllowed(RangerGcsAccessRequest request, List<String> actions) {
+        RangerGcsResource resource = (RangerGcsResource) request.getResource();
+        RangerGcsAuditHandler handler = new RangerGcsAuditHandler(resource.getBucket(), resource.getObjectPath(), actions);
+        RangerAccessResult ret = isAccessAllowed(request, actions, handler);
+        handler.flush();
+        return ret;
+    }
+
+    public RangerAccessResult isAccessAllowed(RangerGcsAccessRequest request, List<String> actions,
+                                              RangerAccessResultProcessor handler) {
         if (LOG.isDebugEnabled())
             LOG.debug("==> RangerGcsPlugin.isAccessAllowed(" +
                     request.getUser() + ", " + request.getAccessType() + ", " + request.getResource() +")");
-
-
-        RangerGcsResource resource = (RangerGcsResource) request.getResource();
-        RangerGcsAuditHandler handler = new RangerGcsAuditHandler(resource.getBucket(), resource.getObjectPath(), actions);
 
         RangerAccessResult result = null;
         for (String action: actions) {
@@ -67,8 +77,6 @@ public class RangerGcsPlugin {
                 break;
             }
         }
-
-        handler.flush();
 
         if (LOG.isDebugEnabled())
             LOG.debug("<== RangerGcsPlugin.isAccessAllowed(" +
