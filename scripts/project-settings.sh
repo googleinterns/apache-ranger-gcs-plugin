@@ -26,6 +26,11 @@ if [[ -z $RANGER_HOME ]] ; then
 	RANGER_HOME="/usr/lib/ranger"
 fi
 
+# Installation location of Hadoop.
+if [[ -z $HADOOP_HOME ]] ; then
+	HADOOP_HOME="/usr/lib/hadoop"
+fi
+
 # Ranger server host name.
 # For example: http://<my-ranger-server-host>
 if [[ -z $RANGER_HOST ]] ; then
@@ -70,5 +75,6 @@ SYSTEMD_DIR="/etc/systemd/system/"
 MODULE_SERVICE="ranger-gcs-service"
 MODULE_PROXY_SERVER="ranger-gcs-permission-check-service"
 MODULE_PLUGIN="ranger-gcs-plugin"
+MODULE_ADAPTER="ranger-gcs-connector-adapter"
 TARGET_DIR="target"
 

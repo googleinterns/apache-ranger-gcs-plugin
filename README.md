@@ -23,8 +23,7 @@ wip.
 wip.
 
 
-# Usage
-## Build the Project
+# Build the Project
 
 Use the maven or maven wrapper to build.
 ```
@@ -48,11 +47,19 @@ If the variable is not set, the default installation location ```/usr/lib/ranger
 export RANGER_HOME=<your ranger installation directory>
 ```
 
-2. **RANGER_HOST** should be the url of Ranger admin server.
+2. **HADOOP_HOME** should point to the base directory of Hadoop's installation.
+
+You can set **HADOOP_HOME** environment variable with an export command.
+If the variable is not set, the default location ```/usr/lib/hadoop``` will be used.
+```
+export HADOOP_HOME=<hadoop installation directory>
+```
+
+3. **RANGER_HOST** should be the url of Ranger admin server.
 
 For example, it is ```http://<your-cluster-name>-m``` on Dataproc clusters.
 
-3. **RANGER_PORT** is the port of Ranger server.
+4. **RANGER_PORT** is the port of Ranger server.
 
 The default port is ```6080```.
 
@@ -138,7 +145,54 @@ You can use the provided setting with "info" log level.
 sudo cp scripts/log4j.properties /etc/gcs/conf
 ```
 
-## Create Policy
+## Deploy Ranger GCS Connector Adapter on Every Node
+
+The Ranger GCS connector adapter needs to be installed on every nodes in the cluster.
+The suggested path is ```$HADOOP_HOME/lib```, and the default $HADOOP_HOME is ```/usr/lib/hadoop```.
+
+If you're using Google Dataproc Clusters, you can set up this by setting up an [initialization action](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/init-actions) while creating clusters.
+
+The following steps are an example of creating a cluster with the adapter installed.
+
+1. Build the ```ranger-gcs-connector-adapter``` sub-module.
+```
+./mvnw -pl ranger-gcs-connector-adapter -am package
+```
+
+2. Prepare init action script for Dataproc clusters.
+Configure the ```Environment Setting``` section in ```scripts/deploy-gcs-connector-adapter.sh```.
+
+- **BUCKET_NAME** is the name of the bucket that will be uased as a distribution cache.
+The Ranger-GCS Connecter adapter jar and initialization action script will be uploaded to the bucket.
+
+- **JAR_DST** is the name of the adapter jar. The built adapter jar will be renamed to this name after been uploaded to the bucket.
+
+- **SCRIPT_DST** is the name of the init action script. The init script will be renamed to this name after uploading.
+This name must match the property value during cluster creation (as described in step 3).
+
+3. Upload the adapter jar and init action script to a GCS bucket.
+```
+bash scripts/deploy-gcs-connector-adapter.sh
+```
+
+4. Create new clusters with required parameters and properties.
+
+  Add the following parameter to Dataproc cluster creation command. Replace the ```<bucket-name>``` with your GCS bucket name.
+  This script is uploaded to the bucket during step 3.
+  The script downloads the adapter jar before hadoop services start.
+  ```
+  --initialization-actions=gs://<bucket-name>/download-ranger-gcs-connector-adapter-init-action.sh
+  ```
+  Refer to [initialization actions](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/init-actions) for more details.
+
+  You will also need to add the following property to the ```--property``` parameter to make the script be executed before the nodes initialize hadoop services.
+  ```
+  dataproc.worker.custom.init.actions.mode=RUN_BEFORE_SERVICES
+  ```
+
+# Usage
+
+## Create Policy on Ranger Admin
 
 A GCS policy requires two resource: bucket name and object path.
 
@@ -148,7 +202,8 @@ A GCS policy requires two resource: bucket name and object path.
 
 Becareful that any non-absolute path (not starting with a "/") may not be matched by the Ranger policy engine.
 
-## Resources
+# Resources
 
 - [Dataproc Ranger Component](https://cloud.google.com/dataproc/docs/concepts/components/ranger)
 - [Google Cloud Dataproc - Hadoop Connectors](https://github.com/GoogleCloudDataproc/hadoop-connectors)
+- [initialization actions](https://cloud.google.com/dataproc/docs/concepts/configuring-clusters/init-actions)
