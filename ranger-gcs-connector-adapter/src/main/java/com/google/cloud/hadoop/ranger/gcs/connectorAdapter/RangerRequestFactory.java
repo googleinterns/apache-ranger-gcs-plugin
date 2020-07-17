@@ -38,6 +38,11 @@ public class RangerRequestFactory {
         UserGroupInformation userInfo = UserGroupInformation.getCurrentUser();
         String user = userInfo.getUserName();
         String userGroups = String.join(",", userInfo.getGroups());
+        return createRangerRequests(storageRequestSummary, user, userGroups);
+    }
+
+    public static List<RangerRequest> createRangerRequests(StorageRequestSummary storageRequestSummary,
+                                                          String user, String userGroups) throws IOException {
         List<RangerRequest> ret = new ArrayList<>();
 
         switch (storageRequestSummary.getActionType()) {
@@ -69,7 +74,8 @@ public class RangerRequestFactory {
                         getObjectDirPath(storageRequestSummary.getResources().get(0)),
                         WRITE));
                 // Need to have read permission on all the source objects
-                for (StorageRequestSummary.GcsStorage peer: storageRequestSummary.getResources()) {
+                for (StorageRequestSummary.GcsStorage peer:
+                        storageRequestSummary.getResources().subList(1, storageRequestSummary.getResources().size())) {
                     ret.add(new RangerRequest(user, userGroups,
                             getObjectPath(peer),
                             READ));
@@ -103,7 +109,7 @@ public class RangerRequestFactory {
             case PATCH_OBJECT:
                 // User should have write permission on the object.
                 ret.add(new RangerRequest(user, userGroups,
-                        getObjectPath(storageRequestSummary.getResources().get(1)),
+                        getObjectPath(storageRequestSummary.getResources().get(0)),
                         WRITE));
                 break;
 
@@ -133,7 +139,7 @@ public class RangerRequestFactory {
     /**
      * Get the object path from bucket/path string.
      */
-    private static String getObjectPath(StorageRequestSummary.GcsStorage peer) {
+    protected static String getObjectPath(StorageRequestSummary.GcsStorage peer) {
         String objectPath = peer.getObject() == null || peer.getObject().isEmpty() ? "/" : peer.getObject();
         return String.format("%s/%s", peer.getBucket(),
                 objectPath.charAt(0) == '/' ? objectPath.substring(1) : objectPath);
@@ -143,7 +149,7 @@ public class RangerRequestFactory {
      * Get the directory of the object from bucket/path string.
      * In other word, remove the base file name from path string.
      */
-    private static String getObjectDirPath(StorageRequestSummary.GcsStorage peer) {
+    protected static String getObjectDirPath(StorageRequestSummary.GcsStorage peer) {
         String ret = getObjectPath(peer);
         return ret.substring(0, ret.lastIndexOf('/') + 1);
     }
