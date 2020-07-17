@@ -40,13 +40,17 @@ public class RangerProxyServiceAdapter implements AuthorizationHandler {
     private static final String DENY_MSG = "Access Denied. Unsupported/invalid request content.";
     private static final String CONNECTION_ERR_MSG =  "Can not connect to Ranger proxy server.";
 
-    private RangerAuthorizationProxyClient RangerRequestHandler;
+    private RangerRequestHandler rangerRequestHandler;
 
     /**
      * @param hostName Ranger proxy server's address.
      */
     public void init(String hostName) {
-        RangerRequestHandler = new RangerAuthorizationProxyClient(hostName);
+        rangerRequestHandler = new RangerAuthorizationProxyClient(hostName);
+    }
+
+    public void init(RangerRequestHandler rangerRequestHandler) {
+        this.rangerRequestHandler = rangerRequestHandler;
     }
 
     /**
@@ -57,13 +61,13 @@ public class RangerProxyServiceAdapter implements AuthorizationHandler {
     @Override
     public void handle(StorageRequestSummary storageRequestSummary)
             throws AccessDeniedException {
-        if (RangerRequestHandler == null) {
+        if (rangerRequestHandler == null) {
             init(getConf().get(PROPERTY_HOST_NAME));
         }
 
         List<RangerRequest> requests;
         try {
-            requests = RangerRequestFactory.createRangerRequest(storageRequestSummary);
+            requests = RangerRequestFactory.createRangerRequests(storageRequestSummary);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -75,8 +79,8 @@ public class RangerProxyServiceAdapter implements AuthorizationHandler {
 
             RangerGcsPermissionCheckResult result;
             try {
-                result = RangerRequestHandler.handle(request, TIMEOUT);
-            } catch (IOException e) {
+                result = rangerRequestHandler.handle(request, TIMEOUT);
+            } catch (Exception e) {
                 throw new AccessDeniedException(CONNECTION_ERR_MSG + " " + e.getMessage());
             }
 

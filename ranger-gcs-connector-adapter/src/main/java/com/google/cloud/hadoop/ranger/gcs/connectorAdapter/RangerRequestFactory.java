@@ -34,11 +34,10 @@ public class RangerRequestFactory {
     private static final String READ = "read";
     private static final String WRITE = "write";
 
-    public static List<RangerRequest> createRangerRequest(StorageRequestSummary storageRequestSummary) throws IOException {
+    public static List<RangerRequest> createRangerRequests(StorageRequestSummary storageRequestSummary) throws IOException {
         UserGroupInformation userInfo = UserGroupInformation.getCurrentUser();
         String user = userInfo.getUserName();
         String userGroups = String.join(",", userInfo.getGroups());
-
         List<RangerRequest> ret = new ArrayList<>();
 
         switch (storageRequestSummary.getActionType()) {
