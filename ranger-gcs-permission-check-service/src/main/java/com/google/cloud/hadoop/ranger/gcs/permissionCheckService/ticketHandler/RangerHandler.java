@@ -19,6 +19,7 @@
 package com.google.cloud.hadoop.ranger.gcs.permissionCheckService.ticketHandler;
 
 import com.google.cloud.hadoop.ranger.gcs.permissionCheckService.RangerGcsPluginSingletonWrapper;
+import com.google.cloud.hadoop.ranger.gcs.permissionCheckService.utilities.RangerGcsPluginWrapper;
 import com.google.cloud.hadoop.ranger.gcs.permissionCheckService.utilities.RequestTicket;
 import com.google.cloud.hadoop.ranger.gcs.utilities.RangerGcsPermissionCheckResult;
 import org.apache.commons.logging.Log;
@@ -34,6 +35,16 @@ public class RangerHandler implements TicketHandler {
     // Ranger's response message should be a complete sentence, so no period here.
     private static final String ACCESS_DENY_MSG = "%s Request=%s.";
 
+    private final RangerGcsPluginWrapper wrapper;
+
+    public RangerHandler() {
+        wrapper = RangerGcsPluginSingletonWrapper.getInstance();
+    }
+
+    public RangerHandler(RangerGcsPluginWrapper wrapper) {
+        this.wrapper = wrapper;
+    }
+
     @Override
     public void handle(RequestTicket ticket) {
         if (LOG.isDebugEnabled())
@@ -44,8 +55,6 @@ public class RangerHandler implements TicketHandler {
                 LOG.debug("<== RangerHandler.handle(" + ticket.toString() + "): denied by other handlers in the chain.");
             return;
         }
-
-         RangerGcsPluginSingletonWrapper wrapper = RangerGcsPluginSingletonWrapper.getInstance();
 
          RangerGcsPermissionCheckResult result = wrapper.isAccessAllowed(ticket.getUser(), ticket.getUserGroups(),
                  ticket.getBucket(), ticket.getObjectPath(), ticket.getActions());
