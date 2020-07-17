@@ -54,27 +54,7 @@ public class RequestTicketFactory {
                     break;
 
                 case RangerGcsHttpRequestKey.RESOURCE:
-                    String bucket = "", objectPath = "";
-
-                    // Value can be "bucket/path", "bucket/" or "/path"
-                    if (entry[1].contains("/")) {
-                        // Slice at the first slash
-                        // Bucket: all characters (can be none) before the first slash.
-                        // Object path: all characters (can be none) after the first slash.
-                        Pattern pattern = Pattern.compile("([^/]*)/(.*)");
-                        Matcher matcher = pattern.matcher(entry[1]);
-                        if (matcher.find()) {
-                            bucket = matcher.group(1);
-                            objectPath = "/" + matcher.group(2);
-                        }
-                    // Value is "bucket", no object path.
-                    } else {
-                        bucket = entry[1];
-                        objectPath = "/";
-                    }
-
-                    ticket.setBucket(bucket);
-                    ticket.setObjectPath(objectPath);
+                    parseResourceString(ticket, entry[1]);
                     break;
 
                 case RangerGcsHttpRequestKey.ACTIONS:
@@ -85,5 +65,32 @@ public class RequestTicketFactory {
         }
 
         return ticket;
+    }
+
+    /**
+     * Parse resource string "bucket/object".
+     */
+    public static void parseResourceString(RequestTicket ticket, String value) {
+        String bucket = "", objectPath = "";
+
+        // Value can be "bucket/path", "bucket/" or "/path"
+        if (value.contains("/")) {
+            // Slice at the first slash
+            // Bucket: all characters (can be none) before the first slash.
+            // Object path: all characters (can be none) after the first slash.
+            Pattern pattern = Pattern.compile("([^/]*)/(.*)");
+            Matcher matcher = pattern.matcher(value);
+            if (matcher.find()) {
+                bucket = matcher.group(1);
+                objectPath = "/" + matcher.group(2);
+            }
+            // Value is "bucket", no object path.
+        } else {
+            bucket = value;
+            objectPath = "/";
+        }
+
+        ticket.setBucket(bucket);
+        ticket.setObjectPath(objectPath);
     }
 }
