@@ -54,15 +54,21 @@ public class ConfigParser {
         configFile = defaultFile;
     }
 
-    public ConfigParser(String configFile) {
-        this.configFile = configFile;
-    }
-
+    /**
+     * Read config file from classpath and return a parsed Config object.
+     */
     public Config parseConfig() throws Exception {
-        Config.ConfigBuilder re = new Config.ConfigBuilder();
-
         DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         Document document = documentBuilder.parse(new File(getFile(configFile)));
+
+        return parseConfig(document);
+    }
+
+    /**
+     * Parse a document object containing a config file and return a parsed Config object.
+     */
+    public Config parseConfig(Document document) {
+        Config.ConfigBuilder re = new Config.ConfigBuilder();
 
         NodeList configs = document.getElementsByTagName(PROPERTY);
 
@@ -85,6 +91,9 @@ public class ConfigParser {
         return re.build();
     }
 
+    /**
+     * Get a File object from class path.
+     */
     public static String getFile(String fileName) throws FileNotFoundException{
         URL url = ConfigParser.class.getClassLoader().getResource(fileName);
         if (url == null)

@@ -19,6 +19,7 @@
 package com.google.cloud.hadoop.ranger.gcs.permissionCheckService;
 
 import com.google.cloud.hadoop.ranger.gcs.authorization.RangerGcsAuthorizer;
+import com.google.cloud.hadoop.ranger.gcs.permissionCheckService.utilities.RangerGcsPluginWrapper;
 import com.google.cloud.hadoop.ranger.gcs.utilities.RangerGcsPermissionCheckResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +36,7 @@ import java.util.Set;
  * The design here uses a singleton instance to keep a already-initialized instance without creating new
  *  daemon threads. There might be other ways to solve this issue, but this is good enough for now.
  */
-public class RangerGcsPluginSingletonWrapper {
+public class RangerGcsPluginSingletonWrapper implements RangerGcsPluginWrapper {
     private static Log LOG = LogFactory.getLog(RangerGcsPluginSingletonWrapper.class);
     private static RangerGcsPluginSingletonWrapper instance;
 
