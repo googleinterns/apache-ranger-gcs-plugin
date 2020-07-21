@@ -18,7 +18,7 @@
 
 package com.google.cloud.hadoop.ranger.gcs.connectorAdapter;
 
-import com.google.cloud.hadoop.gcsio.authorization.StorageRequestSummary;
+import com.google.cloud.hadoop.util.authorization.StorageRequestSummary;
 import org.apache.hadoop.security.UserGroupInformation;
 
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class RangerRequestFactory {
             case LIST_OBJECT:
                 // User should have read permission on the directory.
                 ret.add(new RangerRequest(user, userGroups,
-                        getObjectDirPath(storageRequestSummary.getPeers().get(0)),
+                        getObjectDirPath(storageRequestSummary.getResources().get(0)),
                         READ));
                 break;
 
@@ -57,7 +57,7 @@ public class RangerRequestFactory {
             case DELETE_OBJECT:
                 // User should have write permission on the directory.
                 ret.add(new RangerRequest(user, userGroups,
-                        getObjectDirPath(storageRequestSummary.getPeers().get(0)),
+                        getObjectDirPath(storageRequestSummary.getResources().get(0)),
                         WRITE));
                 break;
 
@@ -67,10 +67,10 @@ public class RangerRequestFactory {
             case COMPOSE_OBJECT:
                 // The first element is the destination object.
                 ret.add(new RangerRequest(user, userGroups,
-                        getObjectDirPath(storageRequestSummary.getPeers().get(0)),
+                        getObjectDirPath(storageRequestSummary.getResources().get(0)),
                         WRITE));
                 // Need to have read permission on all the source objects
-                for (StorageRequestSummary.GcsStorage peer: storageRequestSummary.getPeers()) {
+                for (StorageRequestSummary.GcsStorage peer: storageRequestSummary.getResources()) {
                     ret.add(new RangerRequest(user, userGroups,
                             getObjectPath(peer),
                             READ));
@@ -81,7 +81,7 @@ public class RangerRequestFactory {
             // User should have read permission on the object.
             case GET_OBJECT:
                 ret.add(new RangerRequest(user, userGroups,
-                        getObjectPath(storageRequestSummary.getPeers().get(0)),
+                        getObjectPath(storageRequestSummary.getResources().get(0)),
                         READ));
                 break;
 
@@ -93,10 +93,10 @@ public class RangerRequestFactory {
                 // User should have read permission source object
                 //  and  write permission on the destination's directory.
                 ret.add(new RangerRequest(user, userGroups,
-                        getObjectPath(storageRequestSummary.getPeers().get(0)),
+                        getObjectPath(storageRequestSummary.getResources().get(0)),
                         READ));
                 ret.add(new RangerRequest(user, userGroups,
-                        getObjectDirPath(storageRequestSummary.getPeers().get(1)),
+                        getObjectDirPath(storageRequestSummary.getResources().get(1)),
                         WRITE));
                 break;
 
@@ -104,7 +104,7 @@ public class RangerRequestFactory {
             case PATCH_OBJECT:
                 // User should have write permission on the object.
                 ret.add(new RangerRequest(user, userGroups,
-                        getObjectPath(storageRequestSummary.getPeers().get(1)),
+                        getObjectPath(storageRequestSummary.getResources().get(1)),
                         WRITE));
                 break;
 
