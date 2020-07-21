@@ -18,9 +18,10 @@
 
 package com.google.cloud.hadoop.ranger.gcs.connectorAdapter;
 
-import com.google.cloud.hadoop.gcsio.authorization.AuthorizationProvider;
-import com.google.cloud.hadoop.gcsio.authorization.StorageRequestSummary;
 import com.google.cloud.hadoop.ranger.gcs.utilities.RangerGcsPermissionCheckResult;
+import com.google.cloud.hadoop.util.authorization.AuthorizationHandler;
+import com.google.cloud.hadoop.util.authorization.StorageRequestSummary;
+import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
@@ -29,23 +30,23 @@ import java.util.List;
 /**
  * An authorization provider that send authorization requests to Ranger proxy server.
  */
-public class RangerProxyServiceAdapter implements AuthorizationProvider {
+public class RangerProxyServiceAdapter implements AuthorizationHandler {
+    Configuration configuration;
+    private static final String PROPERTY_HOST_NAME = "fs.gs.ranger.proxy.host.name";
+
     // Timeout for http request to Ranger proxy server. 3 seconds should be more then enough.
     private static final int TIMEOUT = 3;
 
     private static final String DENY_MSG = "Access Denied. Unsupported/invalid request content.";
     private static final String CONNECTION_ERR_MSG =  "Can not connect to Ranger proxy server.";
 
-    private String hostName;
     private RangerAuthorizationProxyClient RangerRequestHandler;
 
     /**
      * @param hostName Ranger proxy server's address.
      */
-    @Override
     public void init(String hostName) {
-        this.hostName = hostName;
-        RangerRequestHandler = new RangerAuthorizationProxyClient(this.hostName);
+        RangerRequestHandler = new RangerAuthorizationProxyClient(hostName);
     }
 
     /**
@@ -56,6 +57,9 @@ public class RangerProxyServiceAdapter implements AuthorizationProvider {
     @Override
     public void handle(StorageRequestSummary storageRequestSummary)
             throws AccessDeniedException {
+        if (RangerRequestHandler == null) {
+            init(getConf().get(PROPERTY_HOST_NAME));
+        }
 
         List<RangerRequest> requests;
         try {
@@ -80,5 +84,15 @@ public class RangerProxyServiceAdapter implements AuthorizationProvider {
                 throw new AccessDeniedException(result.getMessage());
             }
         }
+    }
+
+    @Override
+    public void setConf(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    @Override
+    public Configuration getConf() {
+        return configuration;
     }
 }
