@@ -25,10 +25,13 @@ import static org.mockito.Mockito.when;
 import com.google.cloud.hadoop.ranger.gcs.permissionCheckService.utilities.RangerGcsPluginWrapper;
 import com.google.cloud.hadoop.ranger.gcs.permissionCheckService.utilities.RequestTicket;
 import com.google.cloud.hadoop.ranger.gcs.utilities.RangerGcsPermissionCheckResult;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +46,9 @@ public class RangerHandlerTest {
 
     @Mock
     private RangerGcsPluginWrapper mockWrapper;
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     /**
      * Test if the handler can correctly set the result to the ticket.
