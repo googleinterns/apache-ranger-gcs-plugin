@@ -33,7 +33,7 @@ import java.net.URL;
  * Handle Ranger authorization request.
  * Send requests to a specified proxy server and reply results to callers.
  */
-public class RangerAuthorizationProxyClient {
+public class RangerAuthorizationProxyClient implements RangerRequestHandler {
     private static final String RESULT = "result";
     private static final String MESSAGE = "message";
     private static final String RESULT_DENY = "deny";
@@ -55,6 +55,7 @@ public class RangerAuthorizationProxyClient {
      * @return Permission check result, which is eight allow or deny, with a message.
      * @throws IOException Happens if http connection fails.
      */
+    @Override
     public RangerGcsPermissionCheckResult handle(RangerRequest request, int timeout) throws IOException {
         // Construct HTTP GET query
         String queryString = String.format("?%s=%s&%s=%s&%s=%s&%s=%s",
