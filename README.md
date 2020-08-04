@@ -8,20 +8,21 @@ This project implement a proof of concept permission check server using Apache R
 
 ### Ranger GCS Service
 
-wip.
+This module runs with the Ranger server.
+It also contains a service definition for the GCS service.
 
 ### Ranger GCS Plugin
 
-wip.
+The GCS resource access request authorizer.
 
 ### Permission Check Service
 
-wip.
+Proxy server for Ranger GCS plugin.
 
 ### GCS Connector Adapter
 
-wip.
-
+Authorization handler for GCS connector.
+This module depends on the AuthorizationHandler interface from [Google Cloud Dataproc - Hadoop Connectors](https://github.com/GoogleCloudDataproc/hadoop-connectors).
 
 # Build the Project
 
