@@ -28,13 +28,6 @@ public class RangerRequest {
     private final String resource;
     private final String actions;
 
-    private RangerRequest() {
-        this.user = null;
-        this.userGroups = null;
-        this.resource = null;
-        this.actions = null;
-    }
-
     public RangerRequest(String user, String userGroups, String resource, String actions) {
         this.user = user;
         this.userGroups = userGroups;
@@ -57,11 +50,4 @@ public class RangerRequest {
     public String getActions() {
         return actions;
     }
-
-    /**
-     * A deny request.
-     * Contains nothing.
-     * Indicate that this request should be rejected no matter what.
-     */
-    public static class DenyRequest extends RangerRequest {}
 }

@@ -24,8 +24,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import com.google.cloud.hadoop.ranger.gcs.utilities.RangerGcsPermissionCheckResult;
-import com.google.cloud.hadoop.util.authorization.ActionType;
-import com.google.cloud.hadoop.util.authorization.StorageRequestSummary;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,13 +33,11 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.nio.file.AccessDeniedException;
-import java.util.Arrays;
 
 @RunWith(JUnit4.class)
 public class RangerProxyServiceAdapterTest {
-    private static final String BUCKET = "bucket";
-    private static final String DIR = "/dir/path/";
-    private static final String OBJ = DIR + "obj";
+    private static final String TEST_RESOURCE = "bucket/path/to/object";
+
 
     @Mock
     RangerRequestHandler mockHandler;
@@ -51,29 +47,29 @@ public class RangerProxyServiceAdapterTest {
 
     @Test
     public void testHandleDeny() throws Exception{
-        StorageRequestSummary.GcsStorage peer = new StorageRequestSummary.GcsStorage(BUCKET, OBJ, true);
-        StorageRequestSummary summary = new StorageRequestSummary(ActionType.LIST_OBJECT, Arrays.asList(peer));
-
         when(mockHandler.handle(any(RangerRequest.class), anyInt()))
                 .thenReturn(RangerGcsPermissionCheckResult.Deny());
 
         RangerProxyServiceAdapter adapter = new RangerProxyServiceAdapter();
         adapter.init(mockHandler);
 
-        assertThrows(AccessDeniedException.class, () -> {adapter.handle(summary);});
+        assertThrows(AccessDeniedException.class, () -> {
+            adapter.handle(
+                new RangerRequest("test-user", "test-group",
+                    TEST_RESOURCE, "read"));
+        });
     }
 
     @Test
     public void testHandleAllow() throws Exception {
-        StorageRequestSummary.GcsStorage peer = new StorageRequestSummary.GcsStorage(BUCKET, OBJ, true);
-        StorageRequestSummary summary = new StorageRequestSummary(ActionType.LIST_OBJECT, Arrays.asList(peer));
-
         when(mockHandler.handle(any(RangerRequest.class), anyInt()))
                 .thenReturn(RangerGcsPermissionCheckResult.Allow());
 
         RangerProxyServiceAdapter adapter = new RangerProxyServiceAdapter();
         adapter.init(mockHandler);
 
-        adapter.handle(summary);
+        adapter.handle(
+            new RangerRequest("test-user", "test-groups",
+                TEST_RESOURCE, "read"));
     }
 }

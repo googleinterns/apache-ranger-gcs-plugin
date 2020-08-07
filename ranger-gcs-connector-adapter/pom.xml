@@ -47,6 +47,12 @@
             <artifactId>gcsio</artifactId>
             <version>${gcsconnector.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>${hadoop-common.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

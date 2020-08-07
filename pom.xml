@@ -24,6 +24,7 @@
     <properties>
         <revision>1.0-SNAPSHOT</revision>
         <rangerversion>1.2.0</rangerversion>
+        <hadoop-common.version>2.10.0</hadoop-common.version>
         <gcsconnector.version>2.2.0-SNAPSHOT</gcsconnector.version>
         <google.truth.version>1.0.1</google.truth.version>
         <junit.version>4.13</junit.version>
