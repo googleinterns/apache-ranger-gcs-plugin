@@ -26,7 +26,7 @@
         <rangerversion>1.2.0</rangerversion>
         <gcsconnector.version>2.2.0-SNAPSHOT</gcsconnector.version>
         <google.truth.version>1.0.1</google.truth.version>
-        <junit.version>4.13</junit.version>
+        <junit.version>4.13.1</junit.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <!-- The version that maven auto resolved is too old for Ranger:1.2.0. -->
