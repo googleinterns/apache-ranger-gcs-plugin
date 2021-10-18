@@ -18,7 +18,7 @@
 
 package com.google.cloud.hadoop.ranger.gcs.connectorAdapter;
 
-import com.google.cloud.hadoop.util.authorization.StorageRequestSummary;
+import java.net.URI;
 import org.apache.hadoop.security.UserGroupInformation;
 
 import java.io.IOException;
@@ -29,128 +29,106 @@ import java.util.List;
  * Create RangerRequest from StorageRequestSummary.
  */
 public class RangerRequestFactory {
-    public static final RangerRequest DENY = new RangerRequest.DenyRequest();
 
-    private static final String READ = "read";
-    private static final String WRITE = "write";
+    public static final String READ = "read";
+    public static final String WRITE = "write";
 
-    public static List<RangerRequest> createRangerRequests(StorageRequestSummary storageRequestSummary) throws IOException {
+    private String user;
+    private String userGroups;
+
+    public RangerRequestFactory() throws IOException {
         UserGroupInformation userInfo = UserGroupInformation.getCurrentUser();
-        String user = userInfo.getUserName();
-        String userGroups = String.join(",", userInfo.getGroups());
-        return createRangerRequests(storageRequestSummary, user, userGroups);
+        this.user = userInfo.getUserName();
+        this.userGroups = String.join(",", userInfo.getGroups());
     }
 
-    public static List<RangerRequest> createRangerRequests(StorageRequestSummary storageRequestSummary,
-                                                          String user, String userGroups) throws IOException {
+    RangerRequestFactory(String user, String userGroups) {
+        this.user = user;
+        this.userGroups = userGroups;
+    }
+
+    /**
+     * Create a RangerRequest that requires read permission on object's dir.
+     * @param resource A prefix URI of GCS object.
+     * @return List of RangerRequest.
+     */
+    public RangerRequest createReadRequestOnDir(URI resource) {
+       return new RangerRequest(user, userGroups, getObjectDirPath(resource), READ);
+    }
+
+    /**
+     * Create a RangerRequest that requires write permission on object's dir.
+     * @param resource URI of GCS object.
+     * @return List of RangerRequest.
+     */
+    public RangerRequest createWriteRequestOnDir(URI resource) {
+        return new RangerRequest(user, userGroups, getObjectDirPath(resource), WRITE);
+    }
+
+    /**
+     * Create a list of required RangerRequests for compose object request.
+     * @param destination URI of destination object.
+     * @param sources List of URI of source objects.
+     * @return List of RangerRequest.
+     */
+    public List<RangerRequest> createComposeObjectRequests(URI destination, List<URI> sources) {
         List<RangerRequest> ret = new ArrayList<>();
-
-        switch (storageRequestSummary.getActionType()) {
-             // List an object of a prefix.
-            case LIST_OBJECT:
-                // User should have read permission on the directory.
-                ret.add(new RangerRequest(user, userGroups,
-                        getObjectDirPath(storageRequestSummary.getResources().get(0)),
-                        READ));
-                break;
-
-            // Insert an object in a directory.
-            case INSERT_OBJECT:
-
-            // Delete an object.
-            case DELETE_OBJECT:
-                // User should have write permission on the directory.
-                ret.add(new RangerRequest(user, userGroups,
-                        getObjectDirPath(storageRequestSummary.getResources().get(0)),
-                        WRITE));
-                break;
-
-            // Compose different objects into one.
-            // User should have read permission on source objects
-            //  and write permission to the destination object's directory.
-            case COMPOSE_OBJECT:
-                // The first element is the destination object.
-                ret.add(new RangerRequest(user, userGroups,
-                        getObjectDirPath(storageRequestSummary.getResources().get(0)),
-                        WRITE));
-                // Need to have read permission on all the source objects
-                for (StorageRequestSummary.GcsStorage peer:
-                        storageRequestSummary.getResources().subList(1, storageRequestSummary.getResources().size())) {
-                    ret.add(new RangerRequest(user, userGroups,
-                            getObjectPath(peer),
-                            READ));
-                }
-                break;
-
-            // Get an object.
-            // User should have read permission on the object.
-            case GET_OBJECT:
-                ret.add(new RangerRequest(user, userGroups,
-                        getObjectPath(storageRequestSummary.getResources().get(0)),
-                        READ));
-                break;
-
-            // Rewrite an object.
-            case REWRITE_OBJECT:
-
-            // Copy Object.
-            case COPY_OBJECT:
-                // User should have read permission source object
-                //  and  write permission on the destination's directory.
-                ret.add(new RangerRequest(user, userGroups,
-                        getObjectPath(storageRequestSummary.getResources().get(0)),
-                        READ));
-                ret.add(new RangerRequest(user, userGroups,
-                        getObjectDirPath(storageRequestSummary.getResources().get(1)),
-                        WRITE));
-                break;
-
-            // Patch object.
-            case PATCH_OBJECT:
-                // User should have write permission on the object.
-                ret.add(new RangerRequest(user, userGroups,
-                        getObjectPath(storageRequestSummary.getResources().get(0)),
-                        WRITE));
-                break;
-
-            // List bucket.
-            case LIST_BUCKET:
-
-            // Insert bucket.
-            case INSERT_BUCKET:
-
-            // Get bucket.
-            case GET_BUCKET:
-
-            // Delete bucket
-            case DELETE_BUCKET:
-                // User should have read/write or both permission on a project.
-                // Out of scope.
-                break;
-
-            // Unknown request type. Deny it just to be safe.
-            default:
-                ret.add(DENY);
+        // User should have read permission on source objects
+        ret.add(new RangerRequest(user, userGroups, getObjectDirPath(destination), WRITE));
+        // Need to have read permission on all the source objects
+        for (URI peer: sources) {
+            ret.add(new RangerRequest(user, userGroups, getObjectPath(peer), READ));
         }
-
         return ret;
+    }
+
+    /**
+     * Create a RangerRequest that requires read permission on the object.
+     * @param resource URI of GCS object.
+     * @return List of RangerRequest
+     */
+    public RangerRequest createReadRequestOnObject(URI resource) {
+        return new RangerRequest(user, userGroups, getObjectPath(resource), READ);
+    }
+
+    /**
+     * Create RangerRequests that requires read permission on the source object, and write
+     * permission on the destination object's path.
+     * @param source
+     * @param destination
+     * @return
+     */
+    public List<RangerRequest> createSourceToDestinationRequests(URI source, URI destination) {
+        List<RangerRequest> ret = new ArrayList<>();
+        ret.add(new RangerRequest(user, userGroups, getObjectPath(source), READ));
+        ret.add(new RangerRequest(user, userGroups, getObjectDirPath(destination), WRITE));
+        return ret;
+    }
+
+    /**
+     * Create a RangerRequest that requires write permission on the object.
+     * @param resource A URI of GCS object.
+     * @return A RangerRequest.
+     */
+    public RangerRequest createWriteRequestOnObject(URI resource) {
+        return new RangerRequest(user, userGroups, getObjectPath(resource), WRITE);
     }
 
     /**
      * Get the object path from bucket/path string.
      */
-    protected static String getObjectPath(StorageRequestSummary.GcsStorage peer) {
-        String objectPath = peer.getObject() == null || peer.getObject().isEmpty() ? "/" : peer.getObject();
-        return String.format("%s/%s", peer.getBucket(),
-                objectPath.charAt(0) == '/' ? objectPath.substring(1) : objectPath);
+    protected static String getObjectPath(URI resource) {
+        String objectPath = resource.getPath().isEmpty() ? "/" : resource.getPath();
+        return String.format("%s%s", resource.getAuthority(),
+                objectPath.charAt(0) == '/' ? objectPath : "/" + objectPath);
     }
 
     /**
      * Get the directory of the object from bucket/path string.
      * In other word, remove the base file name from path string.
      */
-    protected static String getObjectDirPath(StorageRequestSummary.GcsStorage peer) {
-        String ret = getObjectPath(peer);
+    protected static String getObjectDirPath(URI resource) {
+        String ret = getObjectPath(resource);
         return ret.substring(0, ret.lastIndexOf('/') + 1);
     }
 }
